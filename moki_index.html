@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#080b18">
+<title>Moki — Tap & Grow</title>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
+<style>
+:root{--bg:#070a15;--card:#10172b;--card2:#151e38;--line:#29365a;--text:#f8f9ff;--muted:#8d99b8;--p:#795cff;--c:#20d9ff;--g:#36e49b;--gold:#ffc83d}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}body{margin:0;background:radial-gradient(circle at 50% -10%,#241850,#080b18 45%,#05070f);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,sans-serif}.app{max-width:520px;margin:auto;padding:14px 14px 92px}.top{display:flex;justify-content:space-between;align-items:center}.brand{display:flex;gap:10px;align-items:center}.logo{width:43px;height:43px;border-radius:14px;display:grid;place-items:center;font-size:24px;background:linear-gradient(135deg,#8862ff,#1edbff);box-shadow:0 8px 30px #7058ff55}.brand b{font-size:19px}.brand small,.score small{color:var(--muted);font-size:10px;display:block}.score{text-align:right}.score b{color:var(--gold);font-size:20px}.card{background:linear-gradient(180deg,#121a31ee,#0d1325ee);border:1px solid var(--line);border-radius:20px;padding:14px;margin:10px 0;box-shadow:0 12px 35px #0005}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{background:#090f20;border:1px solid #202c4c;border-radius:13px;padding:10px;text-align:center}.stat b{font-size:17px}.stat small{display:block;color:var(--muted);font-size:9px;margin-top:3px}.energy{margin-top:10px}.bar{height:9px;border-radius:20px;background:#070b15;overflow:hidden}.fill{height:100%;background:linear-gradient(90deg,var(--c),var(--p));transition:.2s}.taparea{height:370px;display:grid;place-items:center;position:relative;overflow:hidden}.taparea:before{content:"";position:absolute;width:290px;height:290px;border-radius:50%;background:radial-gradient(circle,#785cff55,transparent 65%);box-shadow:0 0 90px #765cff33}.mouse{position:relative;width:220px;height:220px;border-radius:50%;border:8px solid #273158;background:radial-gradient(circle at 35% 25%,#fff,#bcb4ff 12%,#7257ff 44%,#21185f 82%);box-shadow:0 0 0 4px #7c66ff44,0 20px 55px #000,0 0 70px #765cff66;transition:.08s;z-index:1}.mouse:active{transform:scale(.93)}.body{position:absolute;left:43px;top:64px;width:134px;height:108px;border-radius:48% 48% 44% 44%;background:linear-gradient(145deg,#eef1ff,#8996ca);box-shadow:inset -10px -12px 20px #4f5c8d66}.ear{position:absolute;width:48px;height:48px;top:-25px;border-radius:50%;background:#c4ccf0;border:5px solid #6876ae}.ear.l{left:2px}.ear.r{right:2px}.eye{position:absolute;top:43px;width:13px;height:18px;border-radius:50%;background:#11162b}.eye.l{left:38px}.eye.r{right:38px}.nose{position:absolute;top:67px;left:60px;width:14px;height:10px;border-radius:50%;background:#765080}.mouth{position:absolute;top:74px;left:54px;width:25px;height:10px;border-bottom:3px solid #3b4466;border-radius:50%}.cheek{position:absolute;top:65px;width:18px;height:10px;border-radius:50%;background:#f28aa955}.cheek.l{left:23px}.cheek.r{right:23px}.float{position:absolute;font-weight:800;animation:up .8s forwards;z-index:5}@keyframes up{to{transform:translateY(-80px);opacity:0}}.title{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}.title span{color:var(--muted);font-size:10px}.item{display:flex;align-items:center;gap:10px;padding:11px;background:#0b1122;border:1px solid #202c4c;border-radius:14px;margin:8px 0}.ico{width:40px;height:40px;border-radius:12px;background:#18213c;display:grid;place-items:center;font-size:20px}.grow{flex:1}.item b{font-size:13px}.item small{display:block;color:var(--muted);font-size:10px;margin-top:3px}.btn{padding:9px 12px;border:0;border-radius:10px;background:linear-gradient(135deg,var(--p),#5844d5);color:#fff;font-weight:800;font-size:10px}.btn:disabled{opacity:.4}.gold{background:linear-gradient(135deg,#f5bb31,#ff8c2f);color:#241700}.green{background:linear-gradient(135deg,#15bd7d,#28dc9c)}.page{display:none}.page.active{display:block}.hero{text-align:center;padding:17px}.hero h2{margin:2px 0 4px}.hero p,.notice{color:var(--muted);font-size:11px}.nav{position:fixed;z-index:20;bottom:10px;left:50%;transform:translateX(-50%);width:min(492px,calc(100% - 20px));padding:8px;background:#0c1224ee;border:1px solid #2b3758;border-radius:20px;display:grid;grid-template-columns:repeat(5,1fr);gap:4px;backdrop-filter:blur(12px)}.nav button{border:0;background:none;color:#7885a7;border-radius:12px;padding:5px 2px;font-size:9px}.nav button.active{background:#1b2441;color:#fff}.nav i{display:block;font-style:normal;font-size:18px}.code{display:flex;gap:8px}.code input{min-width:0;flex:1;background:#080d1c;border:1px solid #29365a;color:#fff;border-radius:10px;padding:11px;text-transform:uppercase;outline:0}.toast{position:fixed;z-index:50;top:18px;left:50%;transform:translate(-50%,-20px);opacity:0;background:#17223c;border:1px solid #344264;padding:10px 14px;border-radius:12px;font-size:12px;transition:.2s}.toast.show{opacity:1;transform:translate(-50%,0)}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="top"><div class="brand"><div class="logo">🐭</div><div><b>Moki</b><small>Tap • Upgrade • Grow</small></div></div><div class="score"><b id="score">0</b><small>POINTS</small></div></header>
+
+<section id="home" class="page active">
+<div class="card"><div class="stats"><div class="stat"><b id="power">1</b><small>TAP POWER</small></div><div class="stat"><b id="taps">0</b><small>TOTAL TAPS</small></div><div class="stat"><b id="streak">0</b><small>DAY STREAK</small></div></div><div class="energy"><div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted)"><span>ENERGY</span><span id="energyText">1000/1000</span></div><div class="bar"><div class="fill" id="energyFill"></div></div></div></div>
+<div class="card taparea" id="tapArea"><button class="mouse" id="tapBtn"><span class="body"><i class="ear l"></i><i class="ear r"></i><i class="eye l"></i><i class="eye r"></i><i class="cheek l"></i><i class="cheek r"></i><i class="nose"></i><i class="mouth"></i></span></button></div>
+<div class="card"><div class="title"><b>⚡ Quick Upgrade</b><span id="quickCost">100</span></div><div class="item"><div class="ico">🔥</div><div class="grow"><b>Tap Power</b><small>Increase points per tap.</small></div><button class="btn" id="quickBuy">BUY</button></div></div>
+</section>
+
+<section id="tasks" class="page">
+<div class="card hero"><h2>🎯 Daily Tasks</h2><p>New tasks every day. Complete them for bonus points.</p></div>
+<div class="card"><div class="title"><b>Today's Tasks</b><span id="date"></span></div><div id="taskList"></div></div>
+<div class="card"><div class="title"><b>🎁 Daily Code</b><span>1 / day</span></div><div class="code"><input id="code" placeholder="ENTER CODE" maxlength="30"><button class="btn gold" id="redeem">REDEEM</button></div><p class="notice">For live use, set <b>config/dailyCode</b> in Realtime Database to an object like {code:"MOKI001",reward:500}. Demo code: <b>MOKI2026</b>.</p></div>
+</section>
+
+<section id="shop" class="page"><div class="card hero"><h2>🛒 Moki Lab</h2><p>Upgrade power and energy.</p></div><div class="card"><div id="shopList"></div></div></section>
+<section id="ranks" class="page"><div class="card hero"><h2>🏆 Leaderboard</h2><p>Top Moki players.</p></div><div class="card"><div id="ranksList" class="notice">Open Ranks to load.</div></div></section>
+<section id="profile" class="page"><div class="card hero"><div style="font-size:50px">🐭</div><h2 id="name">Moki Player</h2><p id="uid">Connecting…</p></div><div class="card"><div class="stats"><div class="stat"><b id="pscore">0</b><small>POINTS</small></div><div class="stat"><b id="ptaps">0</b><small>TAPS</small></div><div class="stat"><b id="ptasks">0</b><small>TASKS</small></div></div></div></section>
+</div>
+
+<nav class="nav"><button class="active" data-page="home"><i>🐭</i>Game</button><button data-page="tasks"><i>🎯</i>Tasks</button><button data-page="shop"><i>⚡</i>Shop</button><button data-page="ranks"><i>🏆</i>Ranks</button><button data-page="profile"><i>👤</i>Profile</button></nav>
+<div id="toast" class="toast"></div>
+
+<script>
+const firebaseConfig={
+apiKey:"AIzaSyBH5goPSrNKDf5910oprBgreBHjJy7j6J3E",
+authDomain:"moki-the-mouse.firebaseapp.com",
+databaseURL:"https://moki-the-mouse-default-rtdb.asia-southeast1.firebasedatabase.app",
+projectId:"moki-the-mouse",
+storageBucket:"moki-the-mouse.firebasestorage.app",
+messagingSenderId:"748789408273",
+appId:"1:748789408273:web:e20aaf2bab9567284a87b0"
+};
+firebase.initializeApp(firebaseConfig);
+const auth=firebase.auth(),db=firebase.database();
+const DEMO_CODE="MOKI2026";
+let uid=null,saveTimer=null;
+const base={name:"Moki Player",score:0,totalTaps:0,tapPower:1,energy:1000,maxEnergy:1000,energyRegen:5,streak:0,lastDay:"",dayStartTaps:0,dayStartScore:0,dailyUpgrades:0,claimed:{},redeemed:{}};
+let s={...base};
+
+const $=id=>document.getElementById(id),today=()=>new Date().toISOString().slice(0,10),fmt=n=>Math.floor(Number(n)||0).toLocaleString();
+function toast(x){let t=$("toast");t.textContent=x;t.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove("show"),2200)}
+async function save(){if(!uid)return;try{await db.ref("players/"+uid).update({...s,lastSeen:firebase.database.ServerValue.TIMESTAMP})}catch(e){toast("Save failed — check Firebase rules")}}
+function later(){clearTimeout(saveTimer);saveTimer=setTimeout(save,700)}
+function resetDay(){let d=today();if(s.lastDay!==d){s.lastDay=d;s.dayStartTaps=s.totalTaps;s.dayStartScore=s.score;s.dailyUpgrades=0;s.claimed={};s.redeemed={};s.streak=(s.streak||0)+1;later()}}
+function powerCost(){return Math.floor(100*Math.pow(1.65,s.tapPower-1))}
+function energyCost(){return Math.floor(150*Math.pow(1.6,(s.maxEnergy-1000)/500))}
+function render(){
+$("score").textContent=fmt(s.score);$("power").textContent=fmt(s.tapPower);$("taps").textContent=fmt(s.totalTaps);$("streak").textContent=fmt(s.streak);
+$("energyText").textContent=fmt(s.energy)+"/"+fmt(s.maxEnergy);$("energyFill").style.width=Math.max(0,Math.min(100,s.energy/s.maxEnergy*100))+"%";$("quickCost").textContent="Cost "+fmt(powerCost());
+$("pscore").textContent=fmt(s.score);$("ptaps").textContent=fmt(s.totalTaps);$("name").textContent=s.name||"Moki Player";$("uid").textContent=uid?"ID: "+uid.slice(0,10)+"…":"Connecting…";
+renderTasks();renderShop()
+}
+function tap(){
+if(s.energy<=0)return toast("Energy empty — wait for regen");
+s.energy--;s.score+=s.tapPower;s.totalTaps++;
+let f=document.createElement("div");f.className="float";f.textContent="+"+s.tapPower;let r=$("tapArea").getBoundingClientRect();f.style.left=(r.width/2+Math.random()*80-40)+"px";f.style.top=(r.height/2-10)+"px";$("tapArea").appendChild(f);setTimeout(()=>f.remove(),800);render();later()
+}
+function buyPower(){let c=powerCost();if(s.score<c)return toast("Not enough points");s.score-=c;s.tapPower++;s.dailyUpgrades++;render();later();toast("🔥 Tap Power upgraded!")}
+function buyEnergy(){let c=energyCost();if(s.score<c)return toast("Not enough points");s.score-=c;s.maxEnergy+=500;s.energy=s.maxEnergy;s.dailyUpgrades++;render();later();toast("⚡ Energy upgraded!")}
+const tasks=[
+{id:"tap",icon:"👆",title:"Tap Moki 100 times",target:100,reward:100,p:()=>s.totalTaps-s.dayStartTaps},
+{id:"earn",icon:"💎",title:"Earn 500 points today",target:500,reward:150,p:()=>s.score-s.dayStartScore},
+{id:"upgrade",icon:"🔥",title:"Buy 1 upgrade",target:1,reward:250,p:()=>s.dailyUpgrades}
+];
+function renderTasks(){
+$("date").textContent=today();$("taskList").innerHTML="";let count=0;
+tasks.forEach(t=>{let p=Math.max(0,Math.min(t.target,t.p())),done=p>=t.target,claimed=!!s.claimed[t.id];if(claimed)count++;let d=document.createElement("div");d.className="item";d.innerHTML='<div class="ico">'+t.icon+'</div><div class="grow"><b>'+t.title+'</b><small>'+fmt(p)+' / '+fmt(t.target)+' • +'+fmt(t.reward)+'</small></div><button class="btn '+(done&&!claimed?"green":"")+'" '+((!done||claimed)?"disabled":"")+'>'+(claimed?"CLAIMED":done?"CLAIM":"GO")+'</button>';d.querySelector("button").onclick=()=>{if(done&&!claimed){s.score+=t.reward;s.claimed[t.id]=true;render();later();toast("🎁 Reward claimed!")}};$("taskList").appendChild(d)});$("ptasks").textContent=count
+}
+function renderShop(){
+let a=[["🔥","Tap Power","+1 point per tap • Level "+s.tapPower,powerCost(),buyPower],["⚡","Energy Tank","+500 max energy • "+fmt(s.maxEnergy)+" capacity",energyCost(),buyEnergy]];$("shopList").innerHTML="";
+a.forEach(x=>{let d=document.createElement("div");d.className="item";d.innerHTML='<div class="ico">'+x[0]+'</div><div class="grow"><b>'+x[1]+'</b><small>'+x[2]+'</small></div><button class="btn">BUY '+fmt(x[3])+'</button>';d.querySelector("button").onclick=x[4];$("shopList").appendChild(d)})
+}
+async function redeem(){
+let code=$("code").value.trim().toUpperCase();if(!code)return toast("Enter a code");let d=today();if(s.redeemed[d])return toast("Today's code already used");
+let live=null,reward=500;try{let v=(await db.ref("config/dailyCode").once("value")).val();if(v){live=typeof v==="string"?v:v.code;reward=Number(v.reward||500)}}catch(e){}
+if(code!==(String(live||DEMO_CODE).toUpperCase()))return toast("Invalid daily code");
+s.score+=reward;s.redeemed[d]=true;$("code").value="";render();later();toast("🎁 +"+fmt(reward)+" points!")
+}
+async function ranks(){
+$("ranksList").textContent="Loading…";try{let snap=await db.ref("players").orderByChild("score").limitToLast(20).once("value"),a=[];snap.forEach(x=>a.push({id:x.key,...x.val()}));a.sort((x,y)=>(y.score||0)-(x.score||0));$("ranksList").innerHTML=a.length?a.map((x,i)=>'<div class="item" style="border-color:'+(x.id===uid?"#765cff":"#202c4c")+'"><div class="ico">'+(i<3?["🥇","🥈","🥉"][i]:i+1)+'</div><div class="grow"><b>'+safe(x.name||"Moki Player")+'</b><small>'+fmt(x.totalTaps||0)+' taps</small></div><b style="color:var(--gold)">'+fmt(x.score||0)+'</b></div>').join(""):"No players yet"}catch(e){$("ranksList").textContent="Leaderboard unavailable. Check Firebase rules."}}
+function safe(x){return String(x).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+document.querySelectorAll(".nav button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active",p.id===b.dataset.page));document.querySelectorAll(".nav button").forEach(x=>x.classList.toggle("active",x===b));if(b.dataset.page==="ranks")ranks()});
+$("tapBtn").onclick=tap;$("quickBuy").onclick=buyPower;$("redeem").onclick=redeem;
+setInterval(()=>{if(s.energy<s.maxEnergy){s.energy=Math.min(s.maxEnergy,s.energy+s.energyRegen);render();later()}},1000);
+
+auth.signInAnonymously().then(async c=>{
+uid=c.user.uid;let snap=await db.ref("players/"+uid).once("value");if(snap.exists())s={...base,...snap.val(),claimed:{...(snap.val().claimed||{})},redeemed:{...(snap.val().redeemed||{})}};resetDay();render();await save()
+}).catch(e=>{console.error(e);toast("Firebase authentication failed")});
+</script>
+</body>
+</html>
