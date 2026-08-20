@@ -1,292 +1,1308 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="theme-color" content="#F4F3FF">
-  <title>Moki - Tap & Grow</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#F4F3FF">
+<title>Moki - Tap & Grow</title>
 
-  <!-- Firebase Compat SDKs: replace the old https://gstatic.com lines -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
 
-  <style>
-    :root{
-      --bg:#F4F3FF; --card:#FFF; --card2:#EEEBFF; --text:#272536;
-      --muted:#77728E; --p:#7C5CFC; --lav:#F0EDFF; --yellow:#FFC43D;
-      --red:#F15B62; --green:#28B87A;
-    }
-    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-    body{margin:0;background:linear-gradient(180deg,#F7F5FF 0%,#F1EEFF 100%);
-      color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
-      padding:16px 16px 105px;min-height:100vh}
-    .app{max-width:560px;margin:auto}
-    .app-card{background:rgba(255,255,255,.94);border:1px solid #E7E2FF;border-radius:22px;
-      padding:16px;margin-bottom:12px;box-shadow:0 10px 30px rgba(76,57,160,.06)}
-    .brand{display:flex;align-items:center;gap:12px;margin-bottom:18px}
-    .logo{width:45px;height:45px;border-radius:50%;background:radial-gradient(circle,#EFE9FF,#F8F6FF);
-      display:grid;place-items:center;font-size:25px}
-    .brand b{font-size:18px}.brand small{color:var(--muted)}
-    .balance{text-align:center}
-    .balance small{text-transform:uppercase;font-weight:800;color:var(--muted);letter-spacing:.7px}
-    .balance h1{font-size:38px;margin:4px 0 0;font-weight:850}
-    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:14px}
-    .stat{background:#FFF;border:1px solid var(--card2);border-radius:15px;padding:11px 5px;text-align:center}
-    .stat b{font-size:17px;display:block}.stat small{font-size:10px;color:var(--muted);
-      text-transform:uppercase;font-weight:700}
-    .taparea{width:min(290px,78vw);height:min(290px,78vw);margin:28px auto;
-      background:radial-gradient(circle,#ECE8FF 0%,#F7F5FF 70%);border-radius:50%;
-      display:flex;align-items:center;justify-content:center;border:6px solid #FFF;
-      box-shadow:0 22px 45px rgba(104,78,220,.15);cursor:pointer;user-select:none;
-      transition:transform .08s ease}
-    .taparea:active{transform:scale(.95)}
-    .moki{width:135px;height:135px;border-radius:46% 46% 50% 50%;background:var(--red);
-      position:relative;box-shadow:0 12px 20px rgba(241,91,98,.22)}
-    .moki:before,.moki:after{content:"";position:absolute;top:-48px;width:15px;height:65px;
-      background:var(--red);border-radius:80% 20% 70% 20%;transform:rotate(-9deg)}
-    .moki:before{left:20px}.moki:after{right:20px;transform:rotate(9deg)}
-    .face{position:absolute;left:50%;top:52%;transform:translate(-50%,-50%);width:112px;height:52px;
-      background:#FFF;border-radius:50%}
-    .eye{position:absolute;top:16px;width:13px;height:13px;background:#272536;border-radius:50%}
-    .eye.left{left:27px}.eye.right{right:27px}
-    .mouth{position:absolute;left:50%;top:29px;width:12px;height:7px;border-bottom:2px solid #272536;
-      border-radius:0 0 50% 50%;transform:translateX(-50%)}
-    .crown{position:absolute;top:-8px;left:50%;transform:translateX(-50%);
-      width:32px;height:25px;background:#FFC43D;clip-path:polygon(0 100%,15% 20%,50% 45%,80% 20%,100% 100%)}
-    .energy-head{display:flex;justify-content:space-between;font-weight:750;font-size:13px}
-    .progress{background:#E9E6F8;border-radius:20px;height:12px;overflow:hidden;margin-top:7px}
-    .progress span{display:block;height:100%;background:linear-gradient(90deg,#FFC43D,#D9A9A9,#8D69F8);
-      transition:width .2s ease}
-    .redeem input{width:100%;padding:13px;border:1px solid #DDD8F4;border-radius:13px;
-      outline:none;font-size:15px;margin:8px 0}
-    .row{display:flex;gap:8px;align-items:center}
-    button.action{border:0;background:var(--p);color:#fff;border-radius:13px;padding:12px 16px;
-      font-weight:800;cursor:pointer}
-    button.secondary{border:1px solid #DDD8F4;background:#fff;color:var(--p)}
-    .code-box{background:var(--lav);border:1px dashed #B8A9FF;border-radius:13px;padding:11px;
-      text-align:center;font-weight:900;letter-spacing:1.5px;margin:8px 0}
-    nav{position:fixed;bottom:14px;left:16px;right:16px;max-width:560px;margin:auto;background:#FFF;
-      border:1px solid #E5E0F7;border-radius:32px;display:flex;justify-content:space-around;padding:7px;
-      box-shadow:0 15px 35px rgba(76,57,160,.14);z-index:1000}
-    nav button{flex:1;background:none;border:0;color:var(--muted);font-weight:700;font-size:10px;
-      padding:9px 3px;border-radius:24px;display:flex;flex-direction:column;align-items:center;gap:3px}
-    nav button.active{background:var(--p);color:#fff}
-    section{display:none}section.active{display:block}
-    .task{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #EEE}
-    .task:last-child{border-bottom:0}
-    #toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:rgba(39,37,54,.94);
-      color:#fff;padding:12px 20px;border-radius:30px;font-size:13px;font-weight:700;z-index:10000;display:none}
-    .hint{font-size:12px;color:var(--muted);line-height:1.5}
-  </style>
+<script src="https://unpkg.com/@tonconnect/ui@2.3.2/dist/tonconnect-ui.min.js"></script>
+
+<style>
+:root{
+  --bg:#F4F3FF;
+  --card:#FFFFFF;
+  --card2:#EEEBFF;
+  --text:#272536;
+  --muted:#77728E;
+  --p:#7C5CFC;
+  --lav:#F0EDFF;
+  --yellow:#FFC43D;
+  --red:#F15B62;
+  --green:#28B87A;
+}
+
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+
+body{
+  margin:0;
+  background:linear-gradient(180deg,#F7F5FF 0%,#F1EEFF 100%);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  padding:16px 16px 105px;
+  min-height:100vh;
+}
+
+.app{
+  max-width:560px;
+  margin:auto;
+}
+
+.app-card{
+  background:rgba(255,255,255,.94);
+  border:1px solid #E7E2FF;
+  border-radius:22px;
+  padding:16px;
+  margin-bottom:12px;
+  box-shadow:0 10px 30px rgba(76,57,160,.06);
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:18px;
+}
+
+.logo{
+  width:45px;
+  height:45px;
+  border-radius:50%;
+  background:radial-gradient(circle,#EFE9FF,#F8F6FF);
+  display:grid;
+  place-items:center;
+  font-size:25px;
+}
+
+.brand b{
+  font-size:18px;
+}
+
+.brand small{
+  color:var(--muted);
+}
+
+.balance{
+  text-align:center;
+}
+
+.balance small{
+  text-transform:uppercase;
+  font-weight:800;
+  color:var(--muted);
+  letter-spacing:.7px;
+}
+
+.balance h1{
+  font-size:38px;
+  margin:4px 0 0;
+  font-weight:850;
+}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:9px;
+  margin-bottom:14px;
+}
+
+.stat{
+  background:#FFF;
+  border:1px solid var(--card2);
+  border-radius:15px;
+  padding:11px 5px;
+  text-align:center;
+}
+
+.stat b{
+  font-size:17px;
+  display:block;
+}
+
+.stat small{
+  font-size:10px;
+  color:var(--muted);
+  text-transform:uppercase;
+  font-weight:700;
+}
+
+.taparea{
+  width:min(290px,78vw);
+  height:min(290px,78vw);
+  margin:28px auto;
+  background:radial-gradient(circle,#ECE8FF 0%,#F7F5FF 70%);
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:6px solid #FFF;
+  box-shadow:0 22px 45px rgba(104,78,220,.15);
+  cursor:pointer;
+  user-select:none;
+  touch-action:manipulation;
+  transition:transform .08s ease;
+}
+
+.taparea:active{
+  transform:scale(.95);
+}
+
+.moki{
+  width:135px;
+  height:135px;
+  border-radius:46% 46% 50% 50%;
+  background:var(--red);
+  position:relative;
+  box-shadow:0 12px 20px rgba(241,91,98,.22);
+}
+
+.moki:before,
+.moki:after{
+  content:"";
+  position:absolute;
+  top:-48px;
+  width:15px;
+  height:65px;
+  background:var(--red);
+  border-radius:80% 20% 70% 20%;
+  transform:rotate(-9deg);
+}
+
+.moki:before{
+  left:20px;
+}
+
+.moki:after{
+  right:20px;
+  transform:rotate(9deg);
+}
+
+.face{
+  position:absolute;
+  left:50%;
+  top:52%;
+  transform:translate(-50%,-50%);
+  width:112px;
+  height:52px;
+  background:#FFF;
+  border-radius:50%;
+}
+
+.eye{
+  position:absolute;
+  top:16px;
+  width:13px;
+  height:13px;
+  background:#272536;
+  border-radius:50%;
+}
+
+.eye.left{
+  left:27px;
+}
+
+.eye.right{
+  right:27px;
+}
+
+.mouth{
+  position:absolute;
+  left:50%;
+  top:29px;
+  width:12px;
+  height:7px;
+  border-bottom:2px solid #272536;
+  border-radius:0 0 50% 50%;
+  transform:translateX(-50%);
+}
+
+.crown{
+  position:absolute;
+  top:-8px;
+  left:50%;
+  transform:translateX(-50%);
+  width:32px;
+  height:25px;
+  background:#FFC43D;
+  clip-path:polygon(
+    0 100%,
+    15% 20%,
+    50% 45%,
+    80% 20%,
+    100% 100%
+  );
+}
+
+.energy-head{
+  display:flex;
+  justify-content:space-between;
+  font-weight:750;
+  font-size:13px;
+}
+
+.progress{
+  background:#E9E6F8;
+  border-radius:20px;
+  height:12px;
+  overflow:hidden;
+  margin-top:7px;
+}
+
+.progress span{
+  display:block;
+  height:100%;
+  background:linear-gradient(90deg,#FFC43D,#D9A9A9,#8D69F8);
+  transition:width .2s ease;
+}
+
+.redeem input{
+  width:100%;
+  padding:13px;
+  border:1px solid #DDD8F4;
+  border-radius:13px;
+  outline:none;
+  font-size:15px;
+  margin:8px 0;
+}
+
+.row{
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+
+.row input{
+  flex:1;
+}
+
+button.action{
+  border:0;
+  background:var(--p);
+  color:#fff;
+  border-radius:13px;
+  padding:12px 16px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+button.secondary{
+  border:1px solid #DDD8F4;
+  background:#fff;
+  color:var(--p);
+}
+
+.code-box{
+  background:var(--lav);
+  border:1px dashed #B8A9FF;
+  border-radius:13px;
+  padding:11px;
+  text-align:center;
+  font-weight:900;
+  letter-spacing:1.5px;
+  margin:8px 0;
+}
+
+.wallet-card{
+  text-align:center;
+}
+
+.wallet-icon{
+  font-size:48px;
+  margin-bottom:8px;
+}
+
+#walletStatus{
+  font-size:13px;
+  color:var(--muted);
+  margin:8px 0 14px;
+  word-break:break-all;
+}
+
+#tonConnectButton{
+  display:flex;
+  justify-content:center;
+  min-height:50px;
+}
+
+.wallet-address{
+  background:var(--lav);
+  border:1px solid #DDD8F4;
+  border-radius:12px;
+  padding:10px;
+  margin-top:10px;
+  font-size:12px;
+  word-break:break-all;
+  display:none;
+}
+
+nav{
+  position:fixed;
+  bottom:14px;
+  left:16px;
+  right:16px;
+  max-width:560px;
+  margin:auto;
+  background:#FFF;
+  border:1px solid #E5E0F7;
+  border-radius:32px;
+  display:flex;
+  justify-content:space-around;
+  padding:7px;
+  box-shadow:0 15px 35px rgba(76,57,160,.14);
+  z-index:1000;
+}
+
+nav button{
+  flex:1;
+  background:none;
+  border:0;
+  color:var(--muted);
+  font-weight:700;
+  font-size:10px;
+  padding:9px 3px;
+  border-radius:24px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:3px;
+}
+
+nav button.active{
+  background:var(--p);
+  color:#fff;
+}
+
+section{
+  display:none;
+}
+
+section.active{
+  display:block;
+}
+
+.task{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:12px 0;
+  border-bottom:1px solid #EEE;
+}
+
+.task:last-child{
+  border-bottom:0;
+}
+
+#toast{
+  position:fixed;
+  top:20px;
+  left:50%;
+  transform:translateX(-50%);
+  background:rgba(39,37,54,.94);
+  color:#fff;
+  padding:12px 20px;
+  border-radius:30px;
+  font-size:13px;
+  font-weight:700;
+  z-index:10000;
+  display:none;
+}
+
+.hint{
+  font-size:12px;
+  color:var(--muted);
+  line-height:1.5;
+}
+
+.tap-number{
+  position:fixed;
+  pointer-events:none;
+  font-weight:900;
+  color:var(--p);
+  font-size:22px;
+  z-index:9999;
+  animation:floatUp .7s ease forwards;
+}
+
+@keyframes floatUp{
+  0%{
+    opacity:1;
+    transform:translateY(0) scale(1);
+  }
+  100%{
+    opacity:0;
+    transform:translateY(-70px) scale(1.25);
+  }
+}
+</style>
 </head>
+
 <body>
+
 <div class="app">
 
-  <header class="app-card">
-    <div class="brand">
-      <div class="logo">🐭</div>
-      <div><b>Moki</b><br><small>Tap • Upgrade • Grow</small></div>
-    </div>
-    <div class="balance">
-      <small>Moki Balance</small>
-      <h1 id="score">0</h1>
-    </div>
-  </header>
+<header class="app-card">
 
-  <section id="home" class="active">
-    <div class="stats">
-      <div class="stat"><b id="p-power">1</b><small>Tap Power</small></div>
-      <div class="stat"><b id="p-taps">0</b><small>Total Taps</small></div>
-      <div class="stat"><b id="p-streak">0</b><small>Day Streak</small></div>
+  <div class="brand">
+    <div class="logo">🐭</div>
+
+    <div>
+      <b>Moki</b><br>
+      <small>Tap • Upgrade • Grow</small>
+    </div>
+  </div>
+
+  <div class="balance">
+    <small>Moki Balance</small>
+    <h1 id="score">0</h1>
+  </div>
+
+</header>
+
+
+<!-- HOME -->
+
+<section id="home" class="active">
+
+  <div class="stats">
+
+    <div class="stat">
+      <b id="p-power">1</b>
+      <small>Tap Power</small>
     </div>
 
-    <div class="taparea" id="tapArea" aria-label="Tap Moki">
-      <div class="moki">
-        <div class="crown"></div>
-        <div class="face">
-          <span class="eye left"></span><span class="eye right"></span><span class="mouth"></span>
-        </div>
+    <div class="stat">
+      <b id="p-taps">0</b>
+      <small>Total Taps</small>
+    </div>
+
+    <div class="stat">
+      <b id="p-streak">0</b>
+      <small>Day Streak</small>
+    </div>
+
+  </div>
+
+
+  <div class="taparea" id="tapArea">
+
+    <div class="moki">
+
+      <div class="crown"></div>
+
+      <div class="face">
+        <span class="eye left"></span>
+        <span class="eye right"></span>
+        <span class="mouth"></span>
       </div>
+
     </div>
 
-    <div class="app-card">
-      <div class="energy-head"><span>⚡ ENERGY</span><span id="p-energy-text">1500/1500</span></div>
-      <div class="progress"><span id="energyFill"></span></div>
+  </div>
+
+
+  <div class="app-card">
+
+    <div class="energy-head">
+      <span>⚡ ENERGY</span>
+      <span id="p-energy-text">1500/1500</span>
     </div>
 
-    <div class="app-card redeem">
-      <b>🎁 Daily Redeem</b>
-      <div class="code-box" id="todayCode">Loading...</div>
-      <div class="row">
-        <input id="redeemInput" placeholder="Enter today's code" autocomplete="off">
-        <button class="action" id="redeemBtn">Redeem</button>
-      </div>
-      <div class="hint">The daily code is published automatically to the configured Telegram channel.</div>
+    <div class="progress">
+      <span id="energyFill"></span>
     </div>
 
-    <div class="app-card" style="display:flex;justify-content:space-between;align-items:center">
-      <b>Quick Upgrade</b>
-      <button class="action" id="upgradeBtn"><span id="quickCost">100</span> ⚡</button>
+  </div>
+
+
+  <div class="app-card redeem">
+
+    <b>🎁 Daily Redeem</b>
+
+    <div class="code-box" id="todayCode">
+      Loading...
     </div>
-  </section>
 
-  <section id="tasks">
-    <div class="app-card"><h2>Daily Tasks</h2><p class="hint">Tasks can be connected to your Telegram channel later.</p></div>
-    <div class="app-card" id="taskList"></div>
-  </section>
+    <div class="row">
 
-  <section id="shop"><div class="app-card"><h2>Moki Lab</h2><p class="hint">Upgrades will appear here.</p></div></section>
+      <input
+        id="redeemInput"
+        placeholder="Enter today's code"
+        autocomplete="off"
+      >
 
-  <section id="ranks">
-    <div class="app-card"><h2>Leaderboard</h2><div id="leaderboard"><p class="hint">Leaderboard will load after players are connected.</p></div></div>
-  </section>
+      <button class="action" id="redeemBtn">
+        Redeem
+      </button>
 
-  <section id="profile">
-    <div class="app-card" style="text-align:center"><div style="font-size:55px">🐭</div>
-      <h2 id="u-name">Moki Player</h2><p class="hint" id="uidText">Connecting...</p></div>
-  </section>
+    </div>
 
-  <nav>
-    <button class="active" data-page="home">🎮<span>Tap</span></button>
-    <button data-page="tasks">📋<span>Tasks</span></button>
-    <button data-page="shop">⚡<span>Lab</span></button>
-    <button data-page="ranks">🏆<span>Ranks</span></button>
-    <button data-page="profile">👤<span>Profile</span></button>
-  </nav>
+    <div class="hint">
+      The daily code is automatically published to Mini App Hub.
+    </div>
+
+  </div>
+
+
+  <div
+    class="app-card"
+    style="display:flex;justify-content:space-between;align-items:center"
+  >
+
+    <b>Quick Upgrade</b>
+
+    <button class="action" id="upgradeBtn">
+      <span id="quickCost">100</span> ⚡
+    </button>
+
+  </div>
+
+</section>
+
+
+<!-- TASKS -->
+
+<section id="tasks">
+
+  <div class="app-card">
+
+    <h2>Daily Tasks</h2>
+
+    <p class="hint">
+      Complete tasks and earn Moki rewards.
+    </p>
+
+    <div class="task">
+      <span>📢 Join Mini App Hub</span>
+      <button class="action" onclick="toast('Task coming soon')">
+        Check
+      </button>
+    </div>
+
+    <div class="task">
+      <span>🎁 Daily Redeem</span>
+      <button class="action" onclick="toast('Use today code')">
+        Open
+      </button>
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- LAB -->
+
+<section id="shop">
+
+  <div class="app-card">
+
+    <h2>⚡ Moki Lab</h2>
+
+    <p class="hint">
+      Upgrade your Tap Power to earn more Moki per tap.
+    </p>
+
+    <div class="task">
+      <span>Tap Power</span>
+      <b id="labPower">1</b>
+    </div>
+
+    <div class="task">
+      <span>Next Upgrade</span>
+      <b id="labCost">100</b>
+    </div>
+
+    <button
+      class="action"
+      style="width:100%;margin-top:12px"
+      id="labUpgrade"
+    >
+      Upgrade Tap Power
+    </button>
+
+  </div>
+
+</section>
+
+
+<!-- RANKS -->
+
+<section id="ranks">
+
+  <div class="app-card">
+
+    <h2>🏆 Leaderboard</h2>
+
+    <p class="hint">
+      Leaderboard will become available as players join Moki.
+    </p>
+
+  </div>
+
+</section>
+
+
+<!-- PROFILE -->
+
+<section id="profile">
+
+  <div class="app-card wallet-card">
+
+    <div class="wallet-icon">🐭</div>
+
+    <h2 id="u-name">Moki Player</h2>
+
+    <p class="hint" id="uidText">
+      Connecting...
+    </p>
+
+  </div>
+
+
+  <div class="app-card wallet-card">
+
+    <div class="wallet-icon">💎</div>
+
+    <h2>TON Wallet</h2>
+
+    <p id="walletStatus">
+      Wallet not connected
+    </p>
+
+    <div id="tonConnectButton"></div>
+
+    <div
+      id="walletAddress"
+      class="wallet-address"
+    ></div>
+
+    <p class="hint">
+      Connect your TON wallet to your Moki profile.
+    </p>
+
+  </div>
+
+</section>
+
+
+<!-- NAV -->
+
+<nav>
+
+  <button class="active" data-page="home">
+    🎮
+    <span>Tap</span>
+  </button>
+
+  <button data-page="tasks">
+    📋
+    <span>Tasks</span>
+  </button>
+
+  <button data-page="shop">
+    ⚡
+    <span>Lab</span>
+  </button>
+
+  <button data-page="ranks">
+    🏆
+    <span>Ranks</span>
+  </button>
+
+  <button data-page="profile">
+    👤
+    <span>Profile</span>
+  </button>
+
+</nav>
+
 </div>
+
 <div id="toast"></div>
 
+
 <script>
-  /*
-   * IMPORTANT:
-   * Put the EXACT Firebase web config from:
-   * Firebase Console -> Project settings -> Your apps -> Web app.
-   *
-   * The values in the old HTML were malformed:
-   * authDomain was "://firebaseapp.com"
-   * databaseURL was "https://firebasedatabase.app"
-   */
-  const firebaseConfig = {
-    apiKey: "PASTE_YOUR_REAL_API_KEY",
-    authDomain: "moki-the-mouse.firebaseapp.com",
-    databaseURL: "PASTE_YOUR_REAL_REALTIME_DATABASE_URL",
-    projectId: "moki-the-mouse",
-    storageBucket: "moki-the-mouse.firebasestorage.app",
-    messagingSenderId: "740700404221",
-    appId: "1:740700404221:web:e2baa2f0ab9567284da7b0"
-  };
 
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.database();
+/* =========================================================
+   FIREBASE CONFIG
+========================================================= */
 
-  const base = {
-    name:"Moki Player", score:0, totalTaps:0, tapPower:1,
-    energy:1500, maxEnergy:1500, energyRegen:2, streak:0, lastDay:""
-  };
-  let s = {...base};
-  let uid = null;
+const firebaseConfig = {
+  apiKey: "AIzaSyBH5goPSrNKDf5910oprBgreHJjy7j6J3E",
+  authDomain: "moki-the-mouse.firebaseapp.com",
+  databaseURL: "https://moki-the-mouse-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "moki-the-mouse",
+  storageBucket: "moki-the-mouse.firebasestorage.app",
+  messagingSenderId: "748789408273",
+  appId: "1:748789408273:web:e20aaf2bab9567284a87b0"
+};
 
-  const $ = id => document.getElementById(id);
-  const fn = n => Math.floor(Number(n)||0).toLocaleString();
-  function toast(t){$("toast").textContent=t;$("toast").style.display="block";
-    setTimeout(()=>$("toast").style.display="none",2200)}
+firebase.initializeApp(firebaseConfig);
 
-  function save(){
-    if(!uid) return;
-    db.ref("players/"+uid).set(s).catch(e=>toast("Save error"));
-  }
+const auth = firebase.auth();
+const db = firebase.database();
 
-  function render(){
-    $("score").textContent=fn(s.score);
-    $("p-power").textContent=s.tapPower;
-    $("p-taps").textContent=fn(s.totalTaps);
-    $("p-streak").textContent=s.streak;
-    $("p-energy-text").textContent=fn(s.energy)+"/"+fn(s.maxEnergy);
-    $("energyFill").style.width=Math.max(0,Math.min(100,s.energy/s.maxEnergy*100))+"%";
-    $("quickCost").textContent=fn(powerCost());
-    $("u-name").textContent=s.name;
-  }
 
-  function powerCost(){return Math.floor(100*Math.pow(1.65,s.tapPower-1));}
+/* =========================================================
+   STATE
+========================================================= */
 
-  function tap(){
-    if(s.energy < s.tapPower){toast("Energy empty!");return}
-    s.energy-=s.tapPower;s.score+=s.tapPower;s.totalTaps+=s.tapPower;
-    render();save();
-  }
-  $("tapArea").addEventListener("click",tap);
+const base = {
+  name:"Moki Player",
+  score:0,
+  totalTaps:0,
+  tapPower:1,
+  energy:1500,
+  maxEnergy:1500,
+  energyRegen:2,
+  streak:0,
+  lastDay:"",
+  walletAddress:"",
+  redeemed:{}
+};
 
-  $("upgradeBtn").onclick=()=>{
-    const cost=powerCost();
-    if(s.score<cost){toast("Not enough points!");return}
-    s.score-=cost;s.tapPower++;render();save();
-  };
+let s = {...base};
+let uid = null;
 
-  setInterval(()=>{
-    if(s.energy<s.maxEnergy){
-      s.energy=Math.min(s.maxEnergy,s.energy+s.energyRegen);
-      render();save();
-    }
-  },1000);
 
-  // Navigation
-  document.querySelectorAll("nav button").forEach(btn=>{
-    btn.onclick=()=>{
-      document.querySelectorAll("nav button").forEach(x=>x.classList.remove("active"));
-      document.querySelectorAll("section").forEach(x=>x.classList.remove("active"));
-      btn.classList.add("active");$(btn.dataset.page).classList.add("active");
-    }
-  });
+/* =========================================================
+   HELPERS
+========================================================= */
 
-  // Load the daily code that the server/GitHub Action writes to Firebase.
-  function loadDailyCode(){
-    db.ref("dailyCode/current").once("value").then(snap=>{
-      const data=snap.val();
-      $("todayCode").textContent=data && data.code ? data.code : "Not published yet";
-    }).catch(()=>{$("todayCode").textContent="Unavailable"});
-  }
+const $ = id => document.getElementById(id);
 
-  // Client-side redemption. For a public launch, move reward validation to a trusted
-  // server/Cloud Function so players cannot forge rewards from browser devtools.
-  $("redeemBtn").onclick=async()=>{
-    if(!uid){toast("Connecting...");return}
-    const input=$("redeemInput").value.trim().toUpperCase();
-    if(!input){toast("Enter a code");return}
-    const snap=await db.ref("dailyCode/current").once("value");
-    const data=snap.val();
-    if(!data || input!==String(data.code).toUpperCase()){toast("Invalid code");return}
+function fn(n){
+  return Math.floor(Number(n)||0).toLocaleString();
+}
 
-    const date=data.date;
-    const already=await db.ref("players/"+uid+"/redeemed/"+date).once("value");
-    if(already.exists()){toast("Already redeemed today");return}
+function toast(text){
 
-    s.score+=Number(data.reward||1000);
-    await db.ref("players/"+uid+"/redeemed/"+date).set(true);
-    save();render();
-    $("redeemInput").value="";
-    toast("Redeemed! +"+fn(data.reward||1000));
-  };
+  $("toast").textContent = text;
+  $("toast").style.display = "block";
 
-  // Anonymous Auth = no Gmail/password required.
-  auth.signInAnonymously().catch(e=>{
-    console.error(e);toast("Firebase Auth is not enabled");
-  });
+  setTimeout(()=>{
+    $("toast").style.display = "none";
+  },2200);
+}
 
-  auth.onAuthStateChanged(user=>{
-    if(!user)return;
-    uid=user.uid;
-    $("uidText").textContent="Player connected";
-    db.ref("players/"+uid).once("value").then(snap=>{
-      if(snap.exists()) s={...base,...snap.val()};
-      else save();
-      render();
+
+/* =========================================================
+   SAVE
+========================================================= */
+
+function save(){
+
+  if(!uid) return;
+
+  db.ref("players/"+uid)
+    .set(s)
+    .catch(error=>{
+      console.error(error);
+      toast("Save error");
     });
-    loadDailyCode();
-  });
+}
+
+
+/* =========================================================
+   RENDER
+========================================================= */
+
+function render(){
+
+  $("score").textContent = fn(s.score);
+
+  $("p-power").textContent = s.tapPower;
+
+  $("p-taps").textContent = fn(s.totalTaps);
+
+  $("p-streak").textContent = s.streak;
+
+  $("p-energy-text").textContent =
+    fn(s.energy)+"/"+fn(s.maxEnergy);
+
+  $("energyFill").style.width =
+    Math.max(
+      0,
+      Math.min(
+        100,
+        (s.energy/s.maxEnergy)*100
+      )
+    )+"%";
+
+  $("quickCost").textContent =
+    fn(powerCost());
+
+  $("labPower").textContent =
+    s.tapPower;
+
+  $("labCost").textContent =
+    fn(powerCost());
+
+  $("u-name").textContent =
+    s.name;
+
+}
+
+
+/* =========================================================
+   UPGRADE COST
+========================================================= */
+
+function powerCost(){
+
+  return Math.floor(
+    100*Math.pow(
+      1.65,
+      s.tapPower-1
+    )
+  );
+
+}
+
+
+/* =========================================================
+   TAP
+========================================================= */
+
+function tap(event){
+
+  if(!uid){
+
+    toast("Connecting to Moki...");
+
+    return;
+  }
+
+  if(s.energy < s.tapPower){
+
+    toast("Energy empty!");
+
+    return;
+  }
+
+  s.energy -= s.tapPower;
+
+  s.score += s.tapPower;
+
+  s.totalTaps += s.tapPower;
+
+  showTapNumber(
+    event,
+    "+"+s.tapPower
+  );
 
   render();
-</script>
-</body>
-                                                                                             </html>
+
+  save();
+
+}
+
+
+$("tapArea").addEventListener(
+  "click",
+  tap
+);
+
+
+/* =========================================================
+   TAP FLOATING NUMBER
+========================================================= */
+
+function showTapNumber(event,text){
+
+  const el =
+    document.createElement("div");
+
+  el.className = "tap-number";
+
+  el.textContent = text;
+
+  el.style.left =
+    (event.clientX-10)+"px";
+
+  el.style.top =
+    (event.clientY-20)+"px";
+
+  document.body.appendChild(el);
+
+  setTimeout(()=>{
+    el.remove();
+  },700);
+
+}
+
+
+/* =========================================================
+   UPGRADE
+========================================================= */
+
+function upgrade(){
+
+  const cost = powerCost();
+
+  if(s.score < cost){
+
+    toast("Not enough points!");
+
+    return;
+  }
+
+  s.score -= cost;
+
+  s.tapPower++;
+
+  render();
+
+  save();
+
+  toast("Tap Power upgraded!");
+
+}
+
+
+$("upgradeBtn").onclick = upgrade;
+
+$("labUpgrade").onclick = upgrade;
+
+
+/* =========================================================
+   ENERGY REGEN
+========================================================= */
+
+setInterval(()=>{
+
+  if(!uid) return;
+
+  if(s.energy < s.maxEnergy){
+
+    s.energy =
+      Math.min(
+        s.maxEnergy,
+        s.energy+s.energyRegen
+      );
+
+    render();
+
+    save();
+
+  }
+
+},1000);
+
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+document
+.querySelectorAll("nav button")
+.forEach(btn=>{
+
+  btn.onclick = ()=>{
+
+    document
+    .querySelectorAll("nav button")
+    .forEach(x=>{
+      x.classList.remove("active");
+    });
+
+    document
+    .querySelectorAll("section")
+    .forEach(x=>{
+      x.classList.remove("active");
+    });
+
+    btn.classList.add("active");
+
+    $(btn.dataset.page)
+      .classList.add("active");
+
+  };
+
+});
+
+
+/* =========================================================
+   DAILY CODE
+========================================================= */
+
+function loadDailyCode(){
+
+  db.ref("dailyCode/current")
+    .once("value")
+    .then(snap=>{
+
+      const data = snap.val();
+
+      $("todayCode").textContent =
+        data && data.code
+          ? data.code
+          : "Not published yet";
+
+    })
+    .catch(error=>{
+
+      console.error(error);
+
+      $("todayCode").textContent =
+        "Unavailable";
+
+    });
+
+}
+
+
+/* =========================================================
+   REDEEM
+========================================================= */
+
+$("redeemBtn").onclick =
+async()=>{
+
+  if(!uid){
+
+    toast("Connecting...");
+
+    return;
+  }
+
+  const input =
+    $("redeemInput")
+      .value
+      .trim()
+      .toUpperCase();
+
+  if(!input){
+
+    toast("Enter a code");
+
+    return;
+  }
+
+  try{
+
+    const snap =
+      await db
+      .ref("dailyCode/current")
+      .once("value");
+
+    const data = snap.val();
+
+    if(
+      !data ||
+      input !== String(data.code).toUpperCase()
+    ){
+
+      toast("Invalid code");
+
+      return;
+    }
+
+    const date = data.date;
+
+    const already =
+      await db
+      .ref(
+        "players/"+uid+
+        "/redeemed/"+date
+      )
+      .once("value");
+
+    if(already.exists()){
+
+      toast("Already redeemed today");
+
+      return;
+    }
+
+    const reward =
+      Number(data.reward || 1000);
+
+    s.score += reward;
+
+    await db
+    .ref(
+      "players/"+uid+
+      "/redeemed/"+date
+    )
+    .set(true);
+
+    save();
+
+    render();
+
+    $("redeemInput").value = "";
+
+    toast(
+      "Redeemed! +"+fn(reward)
+    );
+
+  }catch(error){
+
+    console.error(error);
+
+    toast("Redeem error");
+
+  }
+
+};
+
+
+/* =========================================================
+   TON CONNECT
+========================================================= */
+
+let tonConnectUI = null;
+
+
+function shortAddress(address){
+
+  if(!address) return "";
+
+  if(address.length <= 14)
+    return address;
+
+  return (
+    address.slice(0,6)+
+    "..."+
+    address.slice(-6)
+  );
+
+}
+
+
+function updateWalletUI(wallet){
+
+  if(wallet && wallet.account){
+
+    const address =
+      wallet.account.address;
+
+    $("walletStatus").textContent =
+      "Connected";
+
+    $("walletAddress").textContent =
+      address;
+
+    $("walletAddress").style.display =
+      "block";
+
+    s.walletAddress =
+      address;
+
+    save();
+
+    return;
+  }
+
+  $("walletStatus").textContent =
+    "Wallet not connected";
+
+  $("walletAddress").textContent =
+    "";
+
+  $("walletAddress").style.display =
+    "none";
+
+  s.walletAddress = "";
+
+  save();
+
+}
+
+
+async function initTonConnect(){
+
+  try{
+
+    tonConnectUI =
+      new TON_CONNECT_UI.TonConnectUI({
+
+        manifestUrl:
+          window.location.origin+
+          "/tonconnect-manifest.json",
+
+        buttonRootId:
+          "tonConnectButton"
+
+      });
+
+
+    tonConnectUI.onStatusChange(
+      wallet=>{
+        updateWalletUI(wallet);
+      }
+    );
+
+
+    if(tonConnectUI.wallet){
+
+      updateWalletUI(
+        tonConnectUI.wallet
+      );
+
+    }
+
+  }catch(error){
+
+    console.error(
+      "TON Connect error:",
+      error
+    );
+
+    $("walletStatus").textContent =
+      "Wallet connection unavailable";
+
+  }
+
+}
+
+
+/* =========================================================
+   FIREBASE AUTH
+========================================================= */
+
+auth
+.signInAnonymously()
+.catch(error=>{
+
+  console.error(
+    "Firebase Auth error:",
+    error
+  );
+
+  toast(
+    "Firebase Auth is not enabled"
+  );
+
+});
+
+
+auth.onAuthStateChanged(
+async user=>{
+
+  if(!user){
+
+    $("uidText").textContent =
+      "Not connected";
+
+    return;
+  }
+
+  uid = user.uid;
+
+  $("uidText").textContent =
+    "Player connected";
+
+  try{
+
+    const snap =
+      await db
+      .ref("players/"+uid)
+      .once("value");
+
+    if(snap.exists()){
+
+      s = {
+        ...base,
+        ...snap.val()
+      };
+
+    }el
