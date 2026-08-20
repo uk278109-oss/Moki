@@ -18,8 +18,8 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install Firebase Admin
-        run: npm install firebase-admin
+      - name: Install dependencies
+        run: npm install firebase-admin sharp
 
       - name: Generate and publish daily code
         env:
