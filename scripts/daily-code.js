@@ -1,4 +1,5 @@
 const crypto = require("crypto");
+const admin = require("firebase-admin");
 
 function makeCode(date) {
   const secret = process.env.DAILY_CODE_SECRET;
@@ -20,38 +21,40 @@ async function main() {
   const code = makeCode(date);
   const reward = Number(process.env.DAILY_REWARD || 1000);
 
-  const firebaseDbUrl = process.env.FIREBASE_DATABASE_URL;
-  const firebaseToken = process.env.FIREBASE_DATABASE_SECRET;
+  const databaseURL = process.env.FIREBASE_DATABASE_URL;
+  const serviceAccountJSON = process.env.FIREBASE_SERVICE_ACCOUNT;
   const botToken = process.env.TELEGRAM_BOT_TOKEN;
   const channel = process.env.TELEGRAM_CHANNEL;
 
-  if (!firebaseDbUrl || !firebaseToken || !botToken || !channel) {
+  if (!databaseURL || !serviceAccountJSON || !botToken || !channel) {
     throw new Error("Missing GitHub Secrets");
   }
 
+  let serviceAccount;
+
+  try {
+    serviceAccount = JSON.parse(serviceAccountJSON);
+  } catch {
+    throw new Error("FIREBASE_SERVICE_ACCOUNT is not valid JSON");
+  }
+
+  if (!admin.apps.length) {
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount),
+      databaseURL: databaseURL
+    });
+  }
+
+  const db = admin.database();
+
   const payload = {
-    code: code,
-    date: date,
-    reward: reward,
+    code,
+    date,
+    reward,
     generatedAt: new Date().toISOString()
   };
 
-  const dbRes = await fetch(
-    `${firebaseDbUrl.replace(/\/$/, "")}/dailyCode/current.json?auth=${encodeURIComponent(firebaseToken)}`,
-    {
-      method: "PUT",
-      headers: {
-        "content-type": "application/json"
-      },
-      body: JSON.stringify(payload)
-    }
-  );
-
-  if (!dbRes.ok) {
-    throw new Error(
-      `Firebase write failed: ${dbRes.status} ${await dbRes.text()}`
-    );
-  }
+  await db.ref("dailyCode/current").set(payload);
 
   const message =
 `🎁 MOKI DAILY REDEEM CODE
@@ -85,7 +88,7 @@ Open Moki and redeem today's code.`;
   console.log(`Published Moki code: ${code}`);
 }
 
-main().catch(error => {
+main().catch((error) => {
   console.error(error);
   process.exit(1);
 });
