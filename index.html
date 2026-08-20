@@ -1300,9 +1300,44 @@ async user=>{
 
     if(snap.exists()){
 
-      s = {
-        ...base,
-        ...snap.val()
-      };
+  s = {
+    ...base,
+    ...snap.val()
+  };
 
-    }el
+}else{
+
+  save();
+
+}
+
+render();
+loadDailyCode();
+
+}catch(error){
+
+  console.error(
+    "Player load error:",
+    error
+  );
+
+  toast("Player data load error");
+
+  render();
+
+}
+
+});
+
+
+// Start TON Connect
+initTonConnect();
+
+
+// Initial UI
+render();
+
+</script>
+
+</body>
+</html>
